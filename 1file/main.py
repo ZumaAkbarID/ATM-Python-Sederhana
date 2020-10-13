@@ -34,7 +34,7 @@ data_user = [
         "norek" : "234567",
         "username" : "PUCU",
         "pin" : "4321",
-        "saldo" : 2000,
+        "saldo" : 0,
         "bank" : "BRI"
     },
     {
@@ -84,7 +84,7 @@ def cekBank(norek):
             return data_bank[i]
     return False
 
-def feeBank():
+def feeTransfer():
     print('1. Biaya admin antar bank Rp.'+str(data_bank[0]['biaya']))
     print('2. Transfer sesama Bank Indonesia gratis')
 
@@ -146,6 +146,27 @@ def tarikUang(jumlah, uid):
             else:
                 print('Maaf saldo anda tidak mencukupi')
 
+def feeDeposit():
+    print('1. Biaya admin deposit menggunakan kartu ATM selain Bank Indonesia Rp.'+str(data_bank[0]['biaya']))
+    print('2. Deposit menggunakan ATM Bank Indonesia gratis')
+
+def deposit(jumlah, uid):
+    user = cekUser(uid)
+    userBank = cekBank(data_user[user]['norek'])
+    for bank in data_bank:
+        if bank['default'] == True:
+            fee = bank['biaya']
+            default = bank['nama']
+    if user >= 0:
+        if userBank['nama'] == default:
+            data_user[user]['saldo'] += int(jumlah)
+            print('Berhasil deposit sebesar Rp.'+str(jumlah))
+            print('Saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+        else:
+            data_user[user]['saldo'] += int(jumlah) - fee
+            print('Berhasil deposit sebesar Rp.'+str(jumlah)+' dengan biaya admin Rp.'+str(fee))
+            print('Saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+
 while isused == 'yes':
     while logged == False:
         print('')
@@ -193,9 +214,9 @@ while isused == 'yes':
         print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
         print('Menu'.center(50))
         print('========================='.center(50))
-        print('1. Cek Saldo          2. Tarik Uang'.center(50))
-        print('3. Transfer Uang      4. Logout    '.center(50))
-        print('5. Keluar ATM                      '.center(50))
+        print('1. Cek Saldo          2. Tarik Uang    '.center(50))
+        print('3. Transfer Uang      4. Deposit       '.center(50))
+        print('5. Logout             6. Keluar Program'.center(50))
         print('========================='.center(50))
         selected = int(input('Pilih Menu (masukkan nomor): '))
         if selected == 1:
@@ -215,8 +236,8 @@ while isused == 'yes':
         elif selected == 3:
             print('')
             print('Transfer Uang'.center(50))
-            print('')
-            feeBank()
+            print('========================='.center(50))
+            feeTransfer()
             print('')
             norek = input('Masukkan nomor rekening tujuan: ')
             if len(norek) == 0:
@@ -243,8 +264,18 @@ while isused == 'yes':
             transferUang(jumlah, norek, userid)
             print('')
         elif selected == 4:
-            logged = False
+            print('')
+            print('Deposit'.center(50))
+            print('========================='.center(50))
+            feeDeposit()
+            print('')
+            jumlah = input('Masukkan nominal: ')
+            print('')
+            deposit(jumlah, userid)
+            print('')
         elif selected == 5:
+            logged = False
+        elif selected == 6:
             logged = False
             repeat = 'no'
             isused = 'no'

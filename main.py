@@ -52,9 +52,9 @@ while isused == 'yes':
         print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
         print('Menu'.center(50))
         print('========================='.center(50))
-        print('1. Cek Saldo          2. Tarik Uang'.center(50))
-        print('3. Transfer Uang      4. Logout    '.center(50))
-        print('5. Keluar ATM                      '.center(50))
+        print('1. Cek Saldo          2. Tarik Uang    '.center(50))
+        print('3. Transfer Uang      4. Deposit       '.center(50))
+        print('5. Logout             6. Keluar Program'.center(50))
         print('========================='.center(50))
         selected = int(input('Pilih Menu (masukkan nomor): '))
         if selected == 1:
@@ -74,8 +74,8 @@ while isused == 'yes':
         elif selected == 3:
             print('')
             print('Transfer Uang'.center(50))
-            print('')
-            system.feeBank()
+            print('========================='.center(50))
+            system.feeTransfer()
             print('')
             norek = input('Masukkan nomor rekening tujuan: ')
             if len(norek) == 0:
@@ -102,8 +102,18 @@ while isused == 'yes':
             system.transferUang(jumlah, norek, userid)
             print('')
         elif selected == 4:
-            logged = False
+            print('')
+            print('Deposit'.center(50))
+            print('========================='.center(50))
+            system.feeDeposit()
+            print('')
+            jumlah = input('Masukkan nominal: ')
+            print('')
+            system.deposit(jumlah, userid)
+            print('')
         elif selected == 5:
+            logged = False
+        elif selected == 6:
             logged = False
             repeat = 'no'
             isused = 'no'

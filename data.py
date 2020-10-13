@@ -29,7 +29,7 @@ data_user = [
         "norek" : "234567",
         "username" : "PUCU",
         "pin" : "4321",
-        "saldo" : 2000,
+        "saldo" : 0,
         "bank" : "BRI"
     },
     {

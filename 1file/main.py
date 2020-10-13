@@ -1,7 +1,24 @@
-userid = 0
-repeat = 'n'
+repeat = 'no'
 logged = False
-isused = 'y'
+isused = 'yes'
+security = 'yes'
+
+data_bank = [
+    {
+        "id" : "1",
+        "nama" : "Bank Indonesia",
+        "kode" : "001",
+        "biaya" : 6000,
+        "default" : True
+    },
+    {
+        "id" : "2",
+        "nama" : "BRI",
+        "kode" : "002",
+        "biaya" : 4000,
+        "default" : False
+    }
+]
 
 data_user = [
     {
@@ -9,14 +26,24 @@ data_user = [
         "norek" : "123456",
         "username" : "UCUP",
         "pin" : "1234",
-        "saldo" : 1000000
+        "saldo" : 1000000,
+        "bank" : "Bank Indonesia"
     },
     {
         "id" : "2",
         "norek" : "234567",
         "username" : "PUCU",
         "pin" : "4321",
-        "saldo" : 2000
+        "saldo" : 2000,
+        "bank" : "BRI"
+    },
+    {
+        "id" : "3",
+        "norek" : "345678",
+        "username" : "CUPU",
+        "pin" : "1324",
+        "saldo" : 1000000,
+        "bank" : "Bank Indonesia"
     }
 ]
 
@@ -44,34 +71,94 @@ def cekRek(norek):
             return int(i)
     return -1
 
-def transferUang(jumlah, norek):
-    first_user = cekUser(userid)
+def userRek(norek):
+    for i in range(len(data_user)):
+        if str(data_user[i]['norek']) == norek:
+            return data_user[i]
+    return False
+    
+def cekBank(norek):
+    user = userRek(norek)
+    for i in range(len(data_bank)):
+        if data_bank[i]['nama'] == user['bank']:
+            return data_bank[i]
+    return False
+
+def feeBank():
+    print('1. Biaya admin antar bank Rp.'+str(data_bank[0]['biaya']))
+    print('2. Transfer sesama Bank Indonesia gratis')
+
+def transferUang(jumlah, norek, uid):
+    first_user = cekUser(uid)
+    firstUser = cekBank(data_user[first_user]['norek'])    
     second_user = cekRek(norek)
-    if first_user >= 0:
-        if data_user[first_user]['saldo'] >= int(jumlah):
-            data_user[first_user]['saldo'] -= int(jumlah)
-            data_user[second_user]['saldo'] += int(jumlah)
-            print('Anda berhasil mentransfer uang Rp.'+str(jumlah)+' ke rekening '+norek)
-            print('Sisa saldo anda adalah Rp.'+str(data_user[first_user]['saldo']))
-        else:
-            print('Maaf saldo anda tidak mencukupi')
+    secondUser = cekBank(data_user[second_user]['norek'])
+    for bank in data_bank:
+        if bank['default'] == True:
+            fee = bank['biaya']
+    if first_user == second_user:
+        print('Anda tidak dapat melakukan transaksi dengan akun Anda sendiri')
+    else:
+        if first_user >= 0:
+            if firstUser['id'] != secondUser['id']:
+                if  data_user[first_user]['saldo'] >= int(jumlah) + fee:
+                    data_user[first_user]['saldo'] -= int(jumlah) + fee
+                    data_user[second_user]['saldo'] += int(jumlah)
+                    print('Anda berhasil mentransfer uang Rp.'+str(jumlah)+' dengan biaya admin '+ str(fee) +' ke rekening '+norek)
+                    print('Sisa saldo anda adalah Rp.'+str(data_user[first_user]['saldo']))
+                else:
+                    print('Maaf saldo anda tidak mencukupi')
+            else:
+                if  data_user[first_user]['saldo'] >= int(jumlah):
+                    data_user[first_user]['saldo'] -= int(jumlah)
+                    data_user[second_user]['saldo'] += int(jumlah)
+                    print('Anda berhasil mentransfer uang Rp.'+str(jumlah)+' ke rekening '+norek)
+                    print('Sisa saldo anda adalah Rp.'+str(data_user[first_user]['saldo']))
+                else:
+                    print('Maaf saldo anda tidak mencukupi')
 
-def tarikUang(jumlah):
-    user = cekUser(userid)
+def feeTarik():
+    print('1. Biaya admin tarik uang menggunakan kartu ATM selain Bank Indonesia Rp.'+str(data_bank[0]['biaya']))
+    print('2. Tarik uang menggunakan ATM Bank Indonesia gratis')
+
+def tarikUang(jumlah, uid):
+    user = cekUser(uid)
+    userBank = cekBank(data_user[user]['norek'])
+    for bank in data_bank:
+        if bank['default'] == True:
+            fee = bank['biaya']
+            default = bank['nama']
     if user >= 0:
-        if data_user[user]['saldo'] >= int(jumlah):
-            data_user[user]['saldo'] -= int(jumlah)
-            print('Berhasil mengambil uang Rp.'+str(jumlah))
-            print('Sisa saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+        if userBank['nama'] == default:
+            if  data_user[user]['saldo'] >= int(jumlah):
+                data_user[user]['saldo'] -= int(jumlah)
+                print('Berhasil menarik uang Rp.'+str(jumlah))
+                print('Silahkan ambil uang Anda')
+                print('Sisa saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+            else:
+                print('Maaf saldo anda tidak mencukupi')
         else:
-            print('Maaf saldo anda tidak mencukupi')
+            if  data_user[user]['saldo'] >= int(jumlah) + fee:
+                data_user[user]['saldo'] -= int(jumlah) + fee
+                print('Berhasil menarik uang Rp.'+str(jumlah)+' dengan biaya admin Rp.'+str(fee))
+                print('Silahkan ambil uang Anda')
+                print('Sisa saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+            else:
+                print('Maaf saldo anda tidak mencukupi')
 
-while isused == 'y':
+while isused == 'yes':
     while logged == False:
-        print('ATM Indonesia'.center(50))
+        print('')
+        print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
+        print(';       ATM INDONESIA      ;'.center(50))
+        print(';--------------------------;'.center(50))
+        print(';       Author : Zuma      ;'.center(50))
+        print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
         print('')
         print('Silahkan masukkan kartu ATM Anda'.center(50))
+        print('')
         card = input('Masukkan kartu (ketik "card" kemudian enter): ')
+        print('')
         if len(card) == 0:
             print('')
             print('Kartu ATM harus dimasukkan')
@@ -81,59 +168,86 @@ while isused == 'y':
             print('Maaf yang anda masukkan bukanlah kartu ATM')
             print('')
         else:
-            security = 'n'
+            security = 'no'
             print('Silahkan masukkan kode PIN Anda'.center(50))
-
-        if security == 'n':
+            print('')
+        if security == 'no':
             pin = input('Masukkan PIN: ')
+            print('')
             login = cekLogin(pin)
             if login != False:
                 print('Selamat datang, '+login['username'])
                 userid = login['id']
                 logged = True
-                repeat = 'y'
+                repeat = 'yes'
             else:
                 print('')
                 print('Kode PIN ada salah ')
                 print('')
 
-    while repeat == 'y' and logged == True:
-        print('ATM Indonesia'.center(50))
+    while repeat == 'yes' and logged == True:
+        print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
+        print(';       ATM INDONESIA      ;'.center(50))
+        print(';--------------------------;'.center(50))
+        print(';       Author : Zuma      ;'.center(50))
+        print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;'.center(50))
         print('Menu'.center(50))
-        print('===================='.center(50))
-        print('1. Cek Saldo      2. Tarik Uang'.center(50))
-        print('3. Transfer Uang      4. Logout'.center(50))
-        print('')
+        print('========================='.center(50))
+        print('1. Cek Saldo          2. Tarik Uang'.center(50))
+        print('3. Transfer Uang      4. Logout    '.center(50))
+        print('5. Keluar ATM                      '.center(50))
+        print('========================='.center(50))
         selected = int(input('Pilih Menu (masukkan nomor): '))
         if selected == 1:
             print('')
             print('Cek Saldo'.center(50))
-            print('')
+            print('========================='.center(50))
             print('Saldo Anda adalah Rp.'+str(cekSaldo(userid)))
             print('')
-            repeat = 'n'
         elif selected == 2:
             print('')
             print('Tarik Uang'.center(50))
+            print('========================='.center(50))
             jumlah = input('Masukkan nominal: ')
             print('')
-            tarikUang(jumlah)
+            tarikUang(jumlah, userid)
             print('')
         elif selected == 3:
             print('')
             print('Transfer Uang'.center(50))
             print('')
+            feeBank()
+            print('')
             norek = input('Masukkan nomor rekening tujuan: ')
-            jumlah = input('Masukan nominal: ')
-            transferUang(jumlah, norek)
+            if len(norek) == 0:
+                print('')
+                norek = input('Nomor rekening tidak valid, Masukkan nomor rekening tujuan: ')
+            elif userRek(norek) != False:
+                user = userRek(norek)
+                print('')
+                print('Penerima :')
+                print('No. Rek  : '+user['norek'])
+                print('Nama     : '+user['username'])
+                print('Bank     : '+user['bank'])
+                print('')
+                tf = input('Tekan enter jika setuju ')
+            else:
+                print('')
+                print('Penerima tidak ditemukan')
+                print('')
+                repeat = 'yes'
+                break
+            print('')
+            jumlah = input('Masukkan nominal: ')
+            print('')
+            transferUang(jumlah, norek, userid)
             print('')
         elif selected == 4:
-            print('')
-            print('Silahkan ambil kartu ATM Anda')
-            print('')
             logged = False
-            repeat = 'n'
-            isused = 'n'
+        elif selected == 5:
+            logged = False
+            repeat = 'no'
+            isused = 'no'
         else:
             print('')
             print('Menu tidak ditemukan')
@@ -141,4 +255,4 @@ while isused == 'y':
         if logged == True:
             input('Kembali ke menu (enter)')
             print('')
-            repeat = 'y'
+            repeat = 'yes'

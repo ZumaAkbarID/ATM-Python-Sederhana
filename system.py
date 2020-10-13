@@ -71,20 +71,30 @@ def transferUang(jumlah, norek, uid):
                 else:
                     print('Maaf saldo anda tidak mencukupi')
 
+def feeTarik():
+    print('1. Biaya admin tarik uang menggunakan kartu ATM selain Bank Indonesia Rp.'+str(data_bank[0]['biaya']))
+    print('2. Tarik uang menggunakan ATM Bank Indonesia gratis')
+
 def tarikUang(jumlah, uid):
-    # MASIH Perlu perbaikan !!!
-    # SAYA NGANTUK NANTI LAGI YA
     user = cekUser(uid)
     userBank = cekBank(data_user[user]['norek'])
     for bank in data_bank:
         if bank['default'] == True:
             fee = bank['biaya']
-            default = bank['name']
+            default = bank['nama']
     if user >= 0:
         if userBank['nama'] == default:
             if  data_user[user]['saldo'] >= int(jumlah):
                 data_user[user]['saldo'] -= int(jumlah)
                 print('Berhasil menarik uang Rp.'+str(jumlah))
+                print('Silahkan ambil uang Anda')
+                print('Sisa saldo anda adalah Rp.'+str(data_user[user]['saldo']))
+            else:
+                print('Maaf saldo anda tidak mencukupi')
+        else:
+            if  data_user[user]['saldo'] >= int(jumlah) + fee:
+                data_user[user]['saldo'] -= int(jumlah) + fee
+                print('Berhasil menarik uang Rp.'+str(jumlah)+' dengan biaya admin Rp.'+str(fee))
                 print('Silahkan ambil uang Anda')
                 print('Sisa saldo anda adalah Rp.'+str(data_user[user]['saldo']))
             else:

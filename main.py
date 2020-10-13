@@ -93,6 +93,9 @@ while isused == 'yes':
             else:
                 print('')
                 print('Penerima tidak ditemukan')
+                print('')
+                repeat = 'yes'
+                break
             print('')
             jumlah = input('Masukkan nominal: ')
             print('')
